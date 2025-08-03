@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,9 +12,12 @@ export default function AllJobs() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [categories, setCategories] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState([]);
 
   const navigate = useNavigate();
+  const { user } = useAuth();
 
+  // Fetch all jobs
   const fetchJobs = async () => {
     try {
       setLoading(true);
@@ -33,6 +38,7 @@ export default function AllJobs() {
     }
   };
 
+  // Fetch all categories
   const fetchCategories = async () => {
     try {
       const res = await axios.get('/api/categories');
@@ -42,13 +48,51 @@ export default function AllJobs() {
     }
   };
 
+  // Fetch jobs user already applied to
+  const fetchAppliedJobs = async () => {
+    if (!user || user.role !== 'freelancer') return;
+    try {
+      const res = await axios.get(`/api/applications?freelancerId=${user._id}`);
+      const appliedJobIds = res.data.map((app) => app.jobId);
+      setAppliedJobs(appliedJobIds);
+    } catch (err) {
+      console.error('Error fetching applied jobs', err);
+    }
+  };
+
+  // Apply to a job
+  const applyToJob = async (jobId) => {
+    try {
+      if (!user || user.role !== 'freelancer') {
+        toast.error('Only freelancers can apply to jobs.');
+        return;
+      }
+
+      await axios.post('/api/applications', {
+        jobId,
+        freelancerId: user._id,
+      });
+
+      toast.success('Application submitted!');
+      setAppliedJobs([...appliedJobs, jobId]);
+    } catch (err) {
+      toast.error('Error applying to job or already applied.');
+      console.error(err);
+    }
+  };
+
+  // Initial data load
   useEffect(() => {
     fetchCategories();
     fetchJobs();
+    fetchAppliedJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Refetch jobs on filter change
   useEffect(() => {
     fetchJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, search, page]);
 
   return (
@@ -116,6 +160,24 @@ export default function AllJobs() {
                 <div className="mt-4 text-right">
                   <span className="text-blue-600 font-bold text-lg">₹{job.budget}</span>
                 </div>
+
+                {user?.role === 'freelancer' && (
+                  <div className="mt-3 text-right">
+                    {appliedJobs.includes(job._id) ? (
+                      <span className="text-green-600 font-medium">✅ Applied</span>
+                    ) : (
+                      <button
+                        className="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          applyToJob(job._id);
+                        }}
+                      >
+                        Apply Now
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

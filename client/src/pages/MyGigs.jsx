@@ -57,6 +57,14 @@ export default function MyGigs() {
     }
   };
 
+  const handleViewApplicants = (gig) => {
+    if (!gig.applicants || gig.applicants.length === 0) {
+      toast.info("No applicants yet for this gig 💤");
+    } else {
+      toast.info(`Applicants: ${gig.applicants.map(a => a.name || a.email).join(", ")}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300 p-4 sm:p-8">
       <div className="flex justify-between items-center mb-6">
@@ -75,7 +83,7 @@ export default function MyGigs() {
               <h3 className="text-xl font-semibold mb-1">{gig.title} 🎨</h3>
               <p className="mb-2 text-sm text-gray-600 dark:text-gray-300">{gig.description}</p>
               <p className="text-sm font-medium text-green-600 dark:text-green-400">Budget: ₹{gig.budget}</p>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded-full text-sm"
                   onClick={() => setEditingGig(gig)}
@@ -87,6 +95,12 @@ export default function MyGigs() {
                   onClick={() => handleDelete(gig._id)}
                 >
                   🗑️ Delete
+                </button>
+                <button
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-full text-sm"
+                  onClick={() => handleViewApplicants(gig)}
+                >
+                  👀 View Applicants ({gig.applicants?.length || 0})
                 </button>
               </div>
             </div>

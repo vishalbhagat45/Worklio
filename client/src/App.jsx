@@ -25,12 +25,14 @@ import ManageUsers from "./pages/admin/ManageUsers";
 import ManageGigs from "./pages/admin/ManageGigs";
 import PaymentSuccess from "./pages/Payment/PaymentSuccess";
 import PaymentCancel from "./pages/Payment/PaymentCancel";
+import MyApplications from "./pages/MyApplications";
+import GigApplicants from "./pages/GigApplicants";
 
 // Components
 import PrivateRoute from "./components/PrivateRoute";
 import LeaveReview from "./components/LeaveReview";
 import StarRating from "./components/StarRating";
-import Message from "./pages/Message";
+
 
 function App() {
   const { user } = useAuth();
@@ -51,6 +53,7 @@ function App() {
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/my-orders" element={<DashboardOrders />} />
         <Route path="/category/:category" element={<CategoryPage />} />
+        
 
         {/* Admin Routes */}
         <Route path="/dashboard/admin" element={<DashboardAdmin />} />
@@ -59,6 +62,9 @@ function App() {
 
         {/* Client Routes */}
         <Route path="/dashboard/client" element={<DashboardClient />} />
+        <Route path="/my-applications" element={<MyApplications />} />
+        <Route path="/gig/:gigId/applicants" element={<GigApplicants/>} />
+
         <Route
           path="/client/purchased-gigs"
           element={

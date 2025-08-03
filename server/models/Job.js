@@ -2,11 +2,26 @@ import mongoose from "mongoose";
 
 const jobSchema = new mongoose.Schema(
   {
-    title: String,
-    category: String,
-    budget: Number,
-    description: String,
-    deadline: String,
+    title: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    budget: {
+      type: Number,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    deadline: {
+      type: String,
+      required: true,
+    },
     postedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -14,9 +29,18 @@ const jobSchema = new mongoose.Schema(
     },
     applicants: [
       {
-        freelancerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        proposal: String,
-        appliedAt: { type: Date, default: Date.now },
+        freelancerId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        proposal: {
+          type: String,
+          required: true,
+        },
+        appliedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
   },

@@ -9,12 +9,14 @@ export default function FreelancerDashboard() {
   const { user } = useAuth();
   const [gigs, setGigs] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [editingGig, setEditingGig] = useState(null);
 
   useEffect(() => {
     if (user) {
       fetchGigs();
       fetchOrders();
+      fetchApplications();
     }
   }, [user]);
 
@@ -36,6 +38,15 @@ export default function FreelancerDashboard() {
     }
   };
 
+  const fetchApplications = async () => {
+    try {
+      const res = await axios.get(`/api/applications?freelancerId=${user._id}`);
+      setApplications(res.data);
+    } catch (err) {
+      console.error("Error fetching job applications", err);
+    }
+  };
+
   const handleDelete = async (id) => {
     try {
       await axios.delete(`/api/gigs/${id}`);
@@ -50,6 +61,7 @@ export default function FreelancerDashboard() {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-6">
       <h1 className="text-3xl font-bold mb-6">🎨 Freelancer Dashboard</h1>
 
+      {/* My Gigs Section */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-2">🛠️ My Gigs</h2>
         {gigs.length === 0 ? (
@@ -81,7 +93,8 @@ export default function FreelancerDashboard() {
         )}
       </section>
 
-      <section>
+      {/* Gig Orders Section */}
+      <section className="mb-10">
         <h2 className="text-xl font-semibold mb-2">📦 Gig Orders</h2>
         {orders.length === 0 ? (
           <p className="text-gray-500">No gig orders received yet.</p>
@@ -98,6 +111,32 @@ export default function FreelancerDashboard() {
         )}
       </section>
 
+      {/* Job Applications Section */}
+      <section>
+        <h2 className="text-xl font-semibold mb-2">📄 Job Applications</h2>
+        {applications.length === 0 ? (
+          <p className="text-gray-500">You haven't applied to any jobs yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {applications.map(app => (
+              <li key={app._id} className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <h3 className="font-semibold">Job: {app.jobTitle}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Status: {app.status}</p>
+                {app.jobId && (
+                  <Link
+                    to={`/jobs/${app.jobId}`}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    🔍 View Job Details
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Edit Gig Modal */}
       {editingGig && (
         <EditGigModal
           gig={editingGig}

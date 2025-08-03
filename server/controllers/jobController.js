@@ -66,6 +66,70 @@ export const getJobs = async (req, res) => {
   }
 };
 
+export const getMyApplications = async (req, res) => {
+  try {
+    const jobs = await Job.find({ "applicants.freelancerId": req.user._id });
+    const myApplications = jobs.map(job => {
+      const myProposal = job.applicants.find(app => app.freelancerId.toString() === req.user._id.toString());
+      return {
+        jobId: job._id,
+        title: job.title,
+        proposal: myProposal.proposal,
+        appliedAt: myProposal.appliedAt
+      };
+    });
+    res.status(200).json(myApplications);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getApplicantsForGig = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id).populate("applicants.freelancerId", "username email");
+    if (!job) return res.status(404).json({ message: "Job not found" });
+
+    if (job.postedBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to view applicants of this gig" });
+    }
+
+    res.status(200).json(job.applicants);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateApplicationStatus = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    const { status } = req.body;
+
+    if (!["Accepted", "Rejected"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    // Find job that contains this application ID
+    const job = await Job.findOne({ "applicants._id": applicationId });
+    if (!job) return res.status(404).json({ message: "Application not found" });
+
+    // Ensure the logged-in user is the owner of the job
+    if (job.postedBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    // Update the specific applicant status
+    const applicant = job.applicants.id(applicationId);
+    if (!applicant) return res.status(404).json({ message: "Applicant not found" });
+
+    applicant.status = status;
+    await job.save();
+
+    res.status(200).json({ message: "Application status updated", application: applicant });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 export const getJobById = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
