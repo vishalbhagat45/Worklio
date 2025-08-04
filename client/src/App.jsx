@@ -30,12 +30,10 @@ import GigApplicants from "./pages/GigApplicants";
 import ChatPage from "./pages/ChatPage";
 import ReviewForm from './components/ReviewForm';
 
-
 // Components
 import PrivateRoute from "./components/PrivateRoute";
 import LeaveReview from "./components/LeaveReview";
 import StarRating from "./components/StarRating";
-
 
 function App() {
   const { user } = useAuth();
@@ -46,6 +44,7 @@ function App() {
       <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
+        {/* General Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -57,10 +56,9 @@ function App() {
         <Route path="/my-orders" element={<DashboardOrders />} />
         <Route path="/category/:category" element={<CategoryPage />} />
         <Route path="/inbox" element={<ChatPage />} />
-        <Route path="/review/:gigId/:orderId" element={<ReviewForm />} />
         
-
-        
+        {/* ✅ Review Form Route */}
+        <Route path="/gigs/:gigId/order/:orderId/review" element={<ReviewForm />} />
 
         {/* Admin Routes */}
         <Route path="/dashboard/admin" element={<DashboardAdmin />} />
@@ -70,8 +68,7 @@ function App() {
         {/* Client Routes */}
         <Route path="/dashboard/client" element={<DashboardClient />} />
         <Route path="/my-applications" element={<MyApplications />} />
-        <Route path="/gig/:gigId/applicants" element={<GigApplicants/>} />
-
+        <Route path="/gig/:gigId/applicants" element={<GigApplicants />} />
         <Route
           path="/client/purchased-gigs"
           element={
@@ -109,7 +106,7 @@ function App() {
           }
         />
 
-        {/* Reviews */}
+        {/* Leave Review (Optional, if used elsewhere) */}
         <Route
           path="/leave-review/:orderId"
           element={
@@ -118,6 +115,8 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        {/* Standalone Star Rating Demo (Optional) */}
         <Route path="/star-rating" element={<StarRating />} />
 
         {/* Payment */}

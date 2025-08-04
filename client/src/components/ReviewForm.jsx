@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import StarRating from './StarRating';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
 
-export default function ReviewForm({ gigId, orderId, onReviewSuccess }) {
+export default function ReviewForm({ onReviewSuccess }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Get gigId and orderId from URL if not passed as props
+  const { gigId, orderId } = useParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
