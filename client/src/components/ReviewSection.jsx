@@ -21,7 +21,7 @@ export default function ReviewSection({ gigId }) {
       const res = await axios.get(`/api/reviews/${gigId}`);
       setReviews(res.data);
 
-      const reviewed = res.data.find((r) => r.userId._id === user._id);
+      const reviewed = res.data.find((r) => r.userId === user._id || r.userId._id === user._id);
       if (reviewed) {
         setHasReviewed(true);
         setEditingReviewId(null);

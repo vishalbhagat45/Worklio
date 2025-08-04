@@ -19,6 +19,7 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
+// ✅ Socket.io Setup
 const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT_URL || "http://localhost:5173",
@@ -26,18 +27,20 @@ const io = new Server(server, {
   },
 });
 
-// Online Users Map
+app.set("io", io); // Optional: make io accessible in routes/controllers if needed
+
+// ✅ Online Users Map
 const onlineUsers = new Map();
 
-// ✅ SOCKET.IO Chat Logic
 io.on("connection", (socket) => {
-  console.log("🔌 Client connected:", socket.id);
+  console.log("🔌 New client connected:", socket.id);
 
   socket.on("joinRoom", (userId) => {
     socket.userId = userId;
     socket.join(userId);
     onlineUsers.set(userId, socket.id);
     io.emit("onlineUsers", Array.from(onlineUsers.keys()));
+    console.log(`👤 User ${userId} joined room and is now online.`);
   });
 
   socket.on("typing", ({ receiverId }) => {
@@ -51,13 +54,30 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", ({ senderId, receiverId, content }) => {
     const timestamp = new Date();
 
+    // Emit to receiver if online
     if (receiverId && onlineUsers.has(receiverId)) {
-      io.to(receiverId).emit("receiveMessage", { senderId, content, timestamp });
-      io.to(receiverId).emit("newConversation", { userId: senderId, lastMessage: content, timestamp });
+      io.to(receiverId).emit("receiveMessage", {
+        senderId,
+        content,
+        timestamp,
+      });
+
+      // Emit to receiver to update their conversation list
+      io.to(receiverId).emit("newConversation", {
+        userId: senderId,
+        lastMessage: content,
+        timestamp,
+      });
     }
 
-    // Also update sender’s list
-    socket.emit("newConversation", { userId: receiverId, lastMessage: content, timestamp });
+    // Emit to sender to update their own conversation list
+    socket.emit("newConversation", {
+      userId: receiverId,
+      lastMessage: content,
+      timestamp,
+    });
+
+    console.log(`✉️ Message from ${senderId} to ${receiverId}: ${content}`);
   });
 
   socket.on("disconnect", () => {
@@ -69,20 +89,20 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ Middleware
+// ✅ Express Middleware
 app.use(cors());
 app.use(express.json());
 
-// ✅ Routes
+// ✅ API Routes
 app.use("/api/jobs", jobRoutes);
 app.use("/api", stripeRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
-app.use("/api/webhook", webhookRoutes); // Stripe webhook
+app.use("/api/webhook", webhookRoutes); // Stripe webhook route
 app.use("/api/messages", messageRoutes);
 app.use("/api/reviews", reviewRoutes);
 
-// ✅ Connect to MongoDB
+// ✅ MongoDB Connection + Server Start
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,

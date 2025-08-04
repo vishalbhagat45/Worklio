@@ -27,6 +27,9 @@ import PaymentSuccess from "./pages/Payment/PaymentSuccess";
 import PaymentCancel from "./pages/Payment/PaymentCancel";
 import MyApplications from "./pages/MyApplications";
 import GigApplicants from "./pages/GigApplicants";
+import ChatPage from "./pages/ChatPage";
+import ReviewForm from './components/ReviewForm';
+
 
 // Components
 import PrivateRoute from "./components/PrivateRoute";
@@ -53,6 +56,10 @@ function App() {
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/my-orders" element={<DashboardOrders />} />
         <Route path="/category/:category" element={<CategoryPage />} />
+        <Route path="/inbox" element={<ChatPage />} />
+        <Route path="/review/:gigId/:orderId" element={<ReviewForm />} />
+        
+
         
 
         {/* Admin Routes */}

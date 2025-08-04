@@ -4,7 +4,7 @@ import User from "../models/User.js";
 export const sendMessage = async (req, res) => {
   try {
     const { receiverId, text } = req.body;
-    const sender = req.user.id;
+    const sender = req.user._id;
 
     if (!receiverId || !text) {
       return res.status(400).json({ message: "receiverId and text are required" });
@@ -21,7 +21,7 @@ export const sendMessage = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const { userId } = req.params;
-    const loggedInUser = req.user.id;
+    const loggedInUser = req.user._id;
 
     const messages = await Message.find({
       $or: [
@@ -39,7 +39,7 @@ export const getMessages = async (req, res) => {
 
 export const getRecentChats = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const chats = await Message.aggregate([
       {
@@ -47,9 +47,7 @@ export const getRecentChats = async (req, res) => {
           $or: [{ sender: userId }, { receiver: userId }],
         },
       },
-      {
-        $sort: { createdAt: -1 },
-      },
+      { $sort: { createdAt: -1 } },
       {
         $group: {
           _id: {

@@ -25,13 +25,7 @@ export const createReview = async (req, res) => {
     const review = new Review({ gigId, rating, comment, userId });
     const saved = await review.save();
 
-    const allReviews = await Review.find({ gigId });
-    const avgRating =
-      allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length;
-
-    await Job.findByIdAndUpdate(gigId, {
-      $set: { averageRating: avgRating.toFixed(1) }
-    });
+    await updateAverageRating(gigId);
 
     res.status(201).json(saved);
   } catch (error) {
@@ -43,9 +37,65 @@ export const getReviewsByGig = async (req, res) => {
   try {
     const { gigId } = req.params;
     const reviews = await Review.find({ gigId }).populate("userId", "username");
-
     res.status(200).json(reviews);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch reviews", error });
   }
+};
+
+export const updateReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    const { id } = req.params;
+
+    const review = await Review.findById(id);
+
+    if (!review) return res.status(404).json({ message: "Review not found" });
+    if (review.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    review.rating = rating;
+    review.comment = comment;
+    await review.save();
+
+    await updateAverageRating(review.gigId);
+
+    res.status(200).json(review);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update review", error });
+  }
+};
+
+export const deleteReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const review = await Review.findById(id);
+
+    if (!review) return res.status(404).json({ message: "Review not found" });
+    if (
+      review.userId.toString() !== req.user._id.toString() &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    await review.deleteOne();
+    await updateAverageRating(review.gigId);
+
+    res.status(200).json({ message: "Review deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete review", error });
+  }
+};
+
+// Utility to update gig average rating
+const updateAverageRating = async (gigId) => {
+  const allReviews = await Review.find({ gigId });
+  const avgRating =
+    allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length;
+
+  await Job.findByIdAndUpdate(gigId, {
+    averageRating: avgRating.toFixed(1),
+  });
 };
