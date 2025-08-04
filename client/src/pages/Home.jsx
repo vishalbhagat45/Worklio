@@ -23,14 +23,45 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white transition-all duration-300">
+    <div
+      id="top"
+      className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white transition-all duration-300"
+    >
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col justify-center items-center text-center px-6 pt-20 pb-10 bg-gradient-to-br from-green-200 via-blue-200 to-purple-200 dark:from-gray-800 dark:to-gray-900">
         <h1 className="text-5xl md:text-6xl font-bold mb-4">Find the Perfect Freelancer for Your Job</h1>
-        <p className="text-xl md:text-2xl max-w-xl">Post jobs, hire freelancers, and get work done easily on our Fiverr-inspired platform.</p>
+        <p className="text-xl md:text-2xl max-w-xl">
+          Post jobs, hire freelancers, and get work done easily on our Fiverr-inspired platform.
+        </p>
         <div className="flex gap-4 mt-6 flex-wrap justify-center">
-          <button onClick={() => scrollTo('categories')} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition">Browse Categories</button>
-          <button onClick={() => scrollTo('pricing')} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl transition">View Pricing</button>
+          <button
+            onClick={() => scrollTo('categories')}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition"
+          >
+            Browse Categories
+          </button>
+          <button
+            onClick={() => scrollTo('pricing')}
+            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl transition"
+          >
+            View Pricing
+          </button>
+        </div>
+
+        {/* 👇 Auth Buttons */}
+        <div className="mt-6 flex gap-4">
+          <Link
+            to="/login"
+            className="px-6 py-2 border border-white text-white hover:bg-white hover:text-blue-600 rounded-xl transition"
+          >
+            Login
+          </Link>
+          <Link
+            to="/register"
+            className="px-6 py-2 border border-white text-white hover:bg-white hover:text-blue-600 rounded-xl transition"
+          >
+            Sign Up
+          </Link>
         </div>
       </section>
 
@@ -46,7 +77,9 @@ export default function Home() {
                 className="p-4 border rounded-lg hover:shadow-lg transition dark:border-gray-700"
               >
                 <h3 className="text-lg font-medium">{cat.name}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{cat.description || 'Find the best gigs'}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {cat.description || 'Find the best gigs'}
+                </p>
               </Link>
             ))}
           </div>
@@ -61,7 +94,9 @@ export default function Home() {
         <div className="grid md:grid-cols-3 gap-8">
           {[1, 2, 3].map((_, i) => (
             <div key={i} className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow">
-              <p className="text-gray-700 dark:text-gray-300">“Amazing experience! Found the perfect freelancer in minutes.”</p>
+              <p className="text-gray-700 dark:text-gray-300">
+                “Amazing experience! Found the perfect freelancer in minutes.”
+              </p>
               <p className="mt-4 font-semibold">User {i + 1}</p>
             </div>
           ))}
@@ -73,7 +108,10 @@ export default function Home() {
         <h2 className="text-3xl font-semibold mb-10 text-center">Pricing Plans</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {['Basic', 'Standard', 'Premium'].map((plan, i) => (
-            <div key={i} className="p-6 border rounded-xl hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div
+              key={i}
+              className="p-6 border rounded-xl hover:shadow-lg dark:border-gray-700 dark:bg-gray-800"
+            >
               <h3 className="text-xl font-bold">{plan}</h3>
               <p className="text-2xl font-semibold mt-2">${(i + 1) * 19}</p>
               <ul className="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
