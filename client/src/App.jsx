@@ -1,10 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { Toaster } from "react-hot-toast";
 import { useAuth } from "./context/AuthContext";
 
 // Pages
+import ClientHome from "./pages/ClientHome";
+import FreelancerHome from "./pages/FreelancerHome";
+import Navbar from "./components/Navbar";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
@@ -28,7 +31,7 @@ import PaymentCancel from "./pages/Payment/PaymentCancel";
 import MyApplications from "./pages/MyApplications";
 import GigApplicants from "./pages/GigApplicants";
 import ChatPage from "./pages/ChatPage";
-import ReviewForm from './components/ReviewForm';
+import ReviewForm from "./components/ReviewForm";
 
 // Components
 import PrivateRoute from "./components/PrivateRoute";
@@ -39,9 +42,10 @@ function App() {
   const { user } = useAuth();
 
   return (
-    <Router>
+    <BrowserRouter>
       <ToastContainer position="top-center" autoClose={3000} />
       <Toaster position="top-center" reverseOrder={false} />
+      {user && <Navbar />}
 
       <Routes>
         {/* General Routes */}
@@ -56,9 +60,15 @@ function App() {
         <Route path="/my-orders" element={<DashboardOrders />} />
         <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/inbox" element={<ChatPage />} />
-        
+
         {/* ✅ Review Form Route */}
-        <Route path="/gigs/:gigId/order/:orderId/review" element={<ReviewForm />} />
+        <Route
+          path="/gigs/:gigId/order/:orderId/review"
+          element={<ReviewForm />}
+        />
+       <Route path="/client-home" element={<ClientHome />} />
+       <Route path="/freelancer-home" element={<FreelancerHome />} />
+
 
         {/* Admin Routes */}
         <Route path="/dashboard/admin" element={<DashboardAdmin />} />
@@ -123,7 +133,7 @@ function App() {
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

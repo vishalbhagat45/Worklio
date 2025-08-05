@@ -5,19 +5,19 @@ import { FaSun, FaMoon, FaSmile } from "react-icons/fa";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const role = user?.role;
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(
-    () => document.documentElement.classList.contains("dark")
+  const [darkMode, setDarkMode] = useState(() =>
+    document.documentElement.classList.contains("dark")
   );
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
-  const role = user?.role;
 
   // Logout handler
   const handleLogout = () => {
     logout();
     setDropdownOpen(false);
-    navigate("/"); // Redirect to home
+    navigate("/");
   };
 
   // Toggle dropdown visibility
@@ -44,7 +44,10 @@ const Navbar = () => {
   return (
     <div className="bg-white dark:bg-gray-900 shadow-sm py-4 px-8 flex justify-between items-center relative text-sm dark:text-white transition duration-300">
       {/* Logo */}
-      <Link to="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+      <Link
+        to="/"
+        className="text-2xl font-bold text-blue-600 dark:text-blue-400"
+      >
         Worklio
       </Link>
 
@@ -66,7 +69,7 @@ const Navbar = () => {
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>
 
-        {/* Authenticated */}
+        {/* Authenticated Section */}
         {user ? (
           <div className="relative" ref={dropdownRef}>
             <button
@@ -81,53 +84,55 @@ const Navbar = () => {
               {user.username}
             </button>
 
-            {/* Dropdown Menu */}
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded shadow-lg z-50">
+
+                {/* Role-Based Dropdown */}
+                <nav className="bg-gray-800 text-white px-6 py-3 flex justify-between items-center">
+                  <Link to="/mygigs" className="text-xl font-bold">
+                    FreelanceHub
+                  </Link>
+                  <div className="flex items-center gap-4">
+                    {!user ? (
+                      <>
+                        <Link to="/login">Login</Link>
+                        <Link to="/register">Register</Link>
+                      </>
+                    ) : (
+                      <>
+                        {/* <span>Hello, {user.name}</span>
+                        <span className="px-2 py-1 bg-gray-700 rounded">
+                          Role: {user.role}
+                        </span> */}
+
+                        {user.role === "freelancer" && (
+                          <>
+                            <Link to="/freelancer/dashboard">Dashboard</Link>
+                            <Link to="/freelancer/post">Post Gig</Link>
+                          </>
+                        )}
+
+                        {user.role === "client" && (
+                          <>
+                            <Link to="/client/dashboard">Dashboard</Link>
+                            <Link to="/client/post">Post Job</Link>
+                          </>
+                        )}
+
+                        {/* <button
+                          onClick={logout}
+                          className="bg-red-500 px-3 py-1 rounded hover:bg-red-600"
+                        >
+                          Logout
+                        </button> */}
+                      </>
+                    )}
+                  </div>
+                </nav>
                 <Link
-                  to="/"
+                  to="/chat"
                   className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  ← Back to Home
-                </Link>
-
-                {role === "client" && (
-                  <>
-                    <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Client Dashboard
-                    </Link>
-                    <Link to="/my-orders" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      My Orders
-                    </Link>
-                  </>
-                )}
-
-                {role === "freelancer" && (
-                  <>
-                    <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Freelancer Dashboard
-                    </Link>
-                    <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Orders
-                    </Link>
-                    <Link to="/my-gigs" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      My Gigs
-                    </Link>
-                  </>
-                )}
-
-                {role === "admin" && (
-                  <>
-                    <Link to="/admin-dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Admin Dashboard
-                    </Link>
-                    <Link to="/admin/users" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Manage Users
-                    </Link>
-                  </>
-                )}
-
-                <Link to="/chat" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span className="flex items-center gap-1">
                     <FaSmile className="text-yellow-500" /> Messages
                   </span>
@@ -153,14 +158,20 @@ const Navbar = () => {
           </>
         )}
 
-        {/* Role-Based Action Button */}
+        {/* Role-Based CTA Buttons */}
         {user && role === "client" && (
-          <Link to="/post-job" className="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700">
+          <Link
+            to="/post-job"
+            className="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700"
+          >
             Post a Job
           </Link>
         )}
         {user && role === "freelancer" && (
-          <Link to="/my-gigs" className="bg-purple-600 px-4 py-2 text-white rounded hover:bg-purple-700">
+          <Link
+            to="/my-gigs"
+            className="bg-purple-600 px-4 py-2 text-white rounded hover:bg-purple-700"
+          >
             Post a Gig
           </Link>
         )}

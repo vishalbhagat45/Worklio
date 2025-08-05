@@ -1,154 +1,135 @@
-import React, { useState, useEffect } from 'react';
-import { createJob, getCategories } from '../api/jobApi';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState } from "react";
+import { getCategories } from "../api/jobApi";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function PostJob() {
-  const [form, setForm] = useState({
-    title: '',
-    category: '',
-    budget: '',
-    description: '',
-    deadline: '',
-  });
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem('theme') === 'dark'
-  );
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    budget: "",
+    category: "",
+  });
+  const [error, setError] = useState("");
 
-  // Fetch categories from backend
   useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const data = await getCategories(); // assumed endpoint
-        setCategories(data);
-      } catch (err) {
-        console.error(err);
-        toast.error('Failed to load categories');
-      }
+    if (!user) {
+      navigate("/login");
+    } else if (user.role !== "client") {
+      navigate("/unauthorized");
     }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getCategories();
+        setCategories(res.data);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
 
     fetchCategories();
   }, []);
 
-  // Escape key listener to reset form (simulate modal close)
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') setForm({
-        title: '',
-        category: '',
-        budget: '',
-        description: '',
-        deadline: ''
-      });
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, []);
-
-  // Handle theme toggle
-  const toggleDarkMode = () => {
-    const newTheme = !darkMode;
-    setDarkMode(newTheme);
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
-
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (Object.values(form).some((v) => !v)) {
-      toast.warning('Please fill in all the fields!');
+    if (!formData.title || !formData.description || !formData.budget || !formData.category) {
+      setError("Please fill all fields.");
       return;
     }
 
     try {
-      await createJob(form);
-      toast.success('🎉 Job posted successfully!');
-      setForm({ title: '', category: '', budget: '', description: '', deadline: '' });
-    } catch (error) {
-      console.error(error);
-      toast.error('❌ Failed to post job');
+      const res = await axios.post("/api/jobs", {
+        ...formData,
+        clientId: user?._id,
+      });
+      if (res.status === 201) {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Error posting job:", err);
+      setError("Failed to post job.");
     }
   };
 
   return (
-    <div className={`${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100'} min-h-screen py-10`}>
-      <ToastContainer />
-      <div className="flex justify-between items-center px-6 max-w-5xl mx-auto mb-4">
-        <button
-          onClick={() => window.location.href = '/'}
-          className="text-sm text-blue-600 underline hover:text-blue-800"
-        >
-          ← Back to Home
-        </button>
-        <button
-          onClick={toggleDarkMode}
-          className="px-4 py-2 rounded-md bg-gray-800 text-white hover:bg-gray-700 transition"
-        >
-          {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
-        </button>
-      </div>
+    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
+      <h2 className="text-2xl font-semibold mb-4">Post a Job</h2>
 
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-8 rounded-xl shadow-xl w-full max-w-3xl mx-auto`}>
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          🚀 Post a New Job
-        </h1>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block font-medium">Job Title</label>
           <input
             type="text"
             name="title"
-            placeholder="Job Title"
-            value={form.title}
+            value={formData.title}
             onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border border-gray-300 rounded px-3 py-2"
           />
-          <select
-            name="category"
-            value={form.category}
+        </div>
+
+        <div>
+          <label className="block font-medium">Description</label>
+          <textarea
+            name="description"
+            value={formData.description}
             onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg shadow-sm bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat.name}>{cat.name}</option>
-            ))}
-          </select>
+            rows={5}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          ></textarea>
+        </div>
+
+        <div>
+          <label className="block font-medium">Budget</label>
           <input
             type="number"
             name="budget"
-            placeholder="Budget in USD"
-            value={form.budget}
+            value={formData.budget}
             onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border border-gray-300 rounded px-3 py-2"
           />
-          <textarea
-            name="description"
-            placeholder="Job Description"
-            value={form.description}
+        </div>
+
+        <div>
+          <label className="block font-medium">Category</label>
+          <select
+            name="category"
+            value={formData.category}
             onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            rows={4}
-          />
-          <input
-            type="date"
-            name="deadline"
-            value={form.deadline}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+            className="w-full border border-gray-300 rounded px-3 py-2"
           >
-            📤 Post Job
-          </button>
-        </form>
-      </div>
+            <option value="">Select a category</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Post Job
+        </button>
+      </form>
     </div>
   );
 }
