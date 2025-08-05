@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import StarRating from '../components/StarRating'; // ✅ Import StarRating
 
 export default function AllJobs() {
   const [jobs, setJobs] = useState([]);
@@ -38,7 +39,7 @@ export default function AllJobs() {
     }
   };
 
-  // Fetch all categories
+  // Fetch categories
   const fetchCategories = async () => {
     try {
       const res = await axios.get('/api/categories');
@@ -48,7 +49,7 @@ export default function AllJobs() {
     }
   };
 
-  // Fetch jobs user already applied to
+  // Fetch applied jobs for freelancer
   const fetchAppliedJobs = async () => {
     if (!user || user.role !== 'freelancer') return;
     try {
@@ -86,13 +87,11 @@ export default function AllJobs() {
     fetchCategories();
     fetchJobs();
     fetchAppliedJobs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Refetch jobs on filter change
+  // Refetch on filters
   useEffect(() => {
     fetchJobs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, search, page]);
 
   return (
@@ -121,7 +120,7 @@ export default function AllJobs() {
         />
       </div>
 
-      {/* Gigs */}
+      {/* Job List */}
       {loading ? (
         <p className="text-center">Loading gigs...</p>
       ) : jobs.length === 0 ? (
@@ -141,8 +140,14 @@ export default function AllJobs() {
                   className="h-40 w-full object-cover rounded-md mb-3"
                 />
                 <h3 className="text-lg font-semibold">{job.title}</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  {job.description.slice(0, 80)}...
+
+                {/* ⭐ Star Rating Component */}
+                <div className="mt-1">
+                  <StarRating rating={job.averageRating || 0} />
+                </div>
+
+                <p className="text-sm text-gray-600 mt-2">
+                  {job.description?.slice(0, 80)}...
                 </p>
 
                 <div className="flex items-center gap-3 mt-4">

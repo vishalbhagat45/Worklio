@@ -11,26 +11,38 @@ const ChatPage = () => {
   const [newMessage, setNewMessage] = useState("");
   const scrollRef = useRef();
 
-  // Load all conversations for logged-in user
+  // Fetch conversations
   useEffect(() => {
+    if (!user?._id) return;
+
     const fetchConversations = async () => {
-      const res = await axios.get(`/api/messages/conversations/${user._id}`);
-      setConversations(res.data);
+      try {
+        const res = await axios.get(`/api/messages/conversations/${user._id}`);
+        setConversations(res.data);
+      } catch (err) {
+        console.error("Failed to fetch conversations:", err);
+      }
     };
+
     fetchConversations();
   }, [user._id]);
 
-  // Fetch messages of selected conversation
+  // Fetch messages when conversation changes
   useEffect(() => {
     const fetchMessages = async () => {
       if (!selectedConversation) return;
-      const res = await axios.get(`/api/messages/${selectedConversation._id}`);
-      setMessages(res.data);
+      try {
+        const res = await axios.get(`/api/messages/${selectedConversation._id}`);
+        setMessages(res.data);
+      } catch (err) {
+        console.error("Failed to fetch messages:", err);
+      }
     };
+
     fetchMessages();
   }, [selectedConversation]);
 
-  // Socket setup
+  // Handle real-time socket communication
   useEffect(() => {
     socket.emit("join", user._id);
 
@@ -45,83 +57,102 @@ const ChatPage = () => {
     };
   }, [selectedConversation, user._id]);
 
+  // Send a new message
   const handleSend = async () => {
-    if (!newMessage.trim()) return;
+    const trimmed = newMessage.trim();
+    if (!trimmed || !selectedConversation) return;
 
+    const receiverId = selectedConversation.members.find((id) => id !== user._id);
     const payload = {
       senderId: user._id,
-      receiverId:
-        selectedConversation.members.find((id) => id !== user._id),
-      text: newMessage,
+      receiverId,
+      text: trimmed,
       conversationId: selectedConversation._id,
     };
 
-    const res = await axios.post("/api/messages", payload);
-    setMessages([...messages, res.data]);
-    setNewMessage("");
-    socket.emit("sendMessage", res.data);
+    try {
+      const res = await axios.post("/api/messages", payload);
+      setMessages((prev) => [...prev, res.data]);
+      socket.emit("sendMessage", res.data);
+      setNewMessage("");
+    } catch (err) {
+      console.error("Message send failed:", err);
+    }
   };
 
+  // Auto-scroll to latest message
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   return (
-    <div className="flex h-screen">
-      {/* Left: Conversations */}
-      <div className="w-1/3 border-r overflow-y-auto p-4">
+    <div className="flex h-[90vh] rounded-xl shadow-lg overflow-hidden bg-white border mx-auto max-w-6xl mt-6">
+      {/* Left Panel - Conversations */}
+      <div className="w-1/3 border-r p-4 overflow-y-auto">
         <h2 className="text-xl font-semibold mb-4">Inbox</h2>
-        {conversations.map((conv) => (
-          <div
-            key={conv._id}
-            onClick={() => setSelectedConversation(conv)}
-            className={`p-3 rounded cursor-pointer mb-2 ${
-              selectedConversation?._id === conv._id ? "bg-blue-100" : "hover:bg-gray-100"
-            }`}
-          >
-            Chat with {conv.members.find((id) => id !== user._id)}
-          </div>
-        ))}
+        {conversations.length === 0 && (
+          <p className="text-sm text-gray-500">No conversations found.</p>
+        )}
+        {conversations.map((conv) => {
+          const partnerId = conv.members.find((id) => id !== user._id);
+          return (
+            <div
+              key={conv._id}
+              onClick={() => setSelectedConversation(conv)}
+              className={`p-3 mb-2 rounded cursor-pointer transition-all ${
+                selectedConversation?._id === conv._id
+                  ? "bg-blue-100 font-semibold"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              Chat with <span className="text-blue-600">{partnerId}</span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Right: Chat Thread */}
+      {/* Right Panel - Chat */}
       <div className="w-2/3 flex flex-col">
         {selectedConversation ? (
           <>
-            <div className="flex-1 overflow-y-auto p-4">
-              {messages.map((msg, i) => (
+            {/* Chat messages */}
+            <div className="flex-1 p-4 overflow-y-auto">
+              {messages.map((msg, index) => (
                 <div
-                  key={msg._id || i}
-                  ref={scrollRef}
-                  className={`mb-2 p-2 max-w-xs rounded-lg text-sm ${
+                  key={msg._id || index}
+                  ref={index === messages.length - 1 ? scrollRef : null}
+                  className={`max-w-[70%] mb-2 p-3 rounded-lg text-sm ${
                     msg.senderId === user._id
-                      ? "bg-blue-500 text-white self-end ml-auto"
-                      : "bg-gray-200 text-black"
+                      ? "ml-auto bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-900"
                   }`}
                 >
                   {msg.text}
                 </div>
               ))}
             </div>
+
+            {/* Input */}
             <div className="p-4 border-t flex items-center">
               <input
                 type="text"
                 placeholder="Type your message..."
-                className="flex-1 border rounded px-4 py-2 mr-2"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
+                className="flex-1 border rounded-lg px-4 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
               />
               <button
                 onClick={handleSend}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
               >
                 Send
               </button>
             </div>
           </>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            Select a conversation to start chatting
+          <div className="flex-1 flex items-center justify-center text-gray-500">
+            Select a conversation to start chatting.
           </div>
         )}
       </div>

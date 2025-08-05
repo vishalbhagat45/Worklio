@@ -1,48 +1,57 @@
-// src/pages/FreelancerHome.jsx
 import React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-export default function FreelancerHome() {
-  const { user } = useAuth();
+const FreelancerHome = () => {
+  const navigate = useNavigate();
 
   return (
-    <div className="p-6 dark:bg-gray-900 text-gray-800 dark:text-white min-h-screen">
-      <h1 className="text-4xl font-bold mb-6">Welcome {user?.name}, Freelancer Dashboard</h1>
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center py-10 px-5">
+      <h1 className="text-4xl font-bold mb-10">Welcome, Freelancer 👋</h1>
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <Link
-          to="/post-job"
-          className="p-6 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
-        >
-          <h2 className="text-2xl font-semibold">Post a New Gig</h2>
-          <p className="mt-2 text-sm">Create a new job to offer your skills</p>
-        </Link>
-
-        <Link
-          to="/my-gigs"
-          className="p-6 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition"
-        >
-          <h2 className="text-2xl font-semibold">Manage My Gigs</h2>
-          <p className="mt-2 text-sm">Edit, delete, and manage your job listings</p>
-        </Link>
-
-        <Link
-          to="/messages"
-          className="p-6 bg-purple-600 text-white rounded-xl shadow hover:bg-purple-700 transition"
-        >
-          <h2 className="text-2xl font-semibold">Messages</h2>
-          <p className="mt-2 text-sm">Chat with potential clients</p>
-        </Link>
-
-        <Link
-          to="/ratings"
-          className="p-6 bg-yellow-600 text-white rounded-xl shadow hover:bg-yellow-700 transition"
-        >
-          <h2 className="text-2xl font-semibold">View Ratings</h2>
-          <p className="mt-2 text-sm">See what clients are saying</p>
-        </Link>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-5xl">
+        <Card
+          title="Manage My Gigs"
+          description="Create, edit, and manage your gigs."
+          onClick={() => navigate("/mygigs")}
+          bgColor="bg-blue-500"
+        />
+        <Card
+          title="My Applications"
+          description="Track jobs you've applied for."
+          onClick={() => navigate("/my-applications")}
+          bgColor="bg-green-500"
+        />
+        <Card
+          title="Dashboard"
+          description="Check earnings, stats, and activity."
+          onClick={() => navigate("/freelancer-dashboard")}
+          bgColor="bg-purple-600"
+        />
+        <Card
+          title="Messages"
+          description="Chat with potential clients."
+          onClick={() => navigate("/inbox")}
+          bgColor="bg-pink-500"
+        />
+        <Card
+          title="Ratings & Reviews"
+          description="See what clients are saying about you."
+          onClick={() => navigate("/jobs/:jobId")} // or modal if inline
+          bgColor="bg-yellow-500"
+        />
       </div>
     </div>
   );
-}
+};
+
+const Card = ({ title, description, onClick, bgColor }) => (
+  <div
+    className={`rounded-lg shadow-lg p-6 cursor-pointer hover:scale-105 transition transform ${bgColor}`}
+    onClick={onClick}
+  >
+    <h2 className="text-xl font-semibold mb-2">{title}</h2>
+    <p className="text-sm">{description}</p>
+  </div>
+);
+
+export default FreelancerHome;

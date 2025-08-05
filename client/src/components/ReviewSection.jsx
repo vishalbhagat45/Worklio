@@ -1,8 +1,8 @@
-// client/src/components/ReviewSection.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { FaStar, FaTrash, FaEdit } from "react-icons/fa";
+import { FaTrash, FaEdit } from "react-icons/fa";
+import StarRating from "./StarRating"; 
 
 export default function ReviewSection({ gigId }) {
   const { user } = useAuth();
@@ -19,13 +19,12 @@ export default function ReviewSection({ gigId }) {
   const fetchReviews = async () => {
     try {
       const res = await axios.get(`/api/reviews/${gigId}`);
-      setReviews(res.data);
+      setReviews(res.data || []);
 
-      const reviewed = res.data.find((r) => r.userId === user._id || r.userId._id === user._id);
-      if (reviewed) {
-        setHasReviewed(true);
-        setEditingReviewId(null);
-      }
+      const alreadyReviewed = res.data.find(
+        (r) => r.userId === user._id || r.userId?._id === user._id
+      );
+      setHasReviewed(!!alreadyReviewed);
     } catch (err) {
       console.error("Error loading reviews", err);
     }
@@ -33,7 +32,7 @@ export default function ReviewSection({ gigId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!rating || !comment) return;
+    if (!rating || !comment.trim()) return;
 
     try {
       if (editingReviewId) {
@@ -44,10 +43,9 @@ export default function ReviewSection({ gigId }) {
             headers: { Authorization: `Bearer ${user.token}` },
           }
         );
-        setEditingReviewId(null);
       } else {
         await axios.post(
-          "/api/reviews",
+          `/api/reviews`,
           { gigId, rating, comment },
           {
             headers: { Authorization: `Bearer ${user.token}` },
@@ -58,6 +56,7 @@ export default function ReviewSection({ gigId }) {
 
       setRating(0);
       setComment("");
+      setEditingReviewId(null);
       fetchReviews();
     } catch (err) {
       console.error("Failed to submit/edit review", err);
@@ -72,10 +71,12 @@ export default function ReviewSection({ gigId }) {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this review?")) return;
+
     try {
       await axios.delete(`/api/reviews/${id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
+
       setHasReviewed(false);
       setEditingReviewId(null);
       fetchReviews();
@@ -85,78 +86,68 @@ export default function ReviewSection({ gigId }) {
   };
 
   return (
-    <div className="mt-6 p-4 bg-white shadow rounded">
-      <h3 className="text-lg font-bold mb-4">⭐ Reviews</h3>
+    <div className="mt-6 bg-white border rounded-md p-6 shadow">
+      <h3 className="text-xl font-semibold mb-4 text-gray-800">⭐ Reviews</h3>
+
+      {reviews.length === 0 && (
+        <p className="text-gray-500 text-sm mb-4">No reviews yet.</p>
+      )}
 
       {reviews.map((rev) => (
-        <div key={rev._id} className="mb-4 border-b pb-2">
-          <div className="flex justify-between items-center">
-            <div>
-              <strong>{rev.userId.username}</strong>
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    size={16}
-                    color={i < rev.rating ? "gold" : "lightgray"}
-                  />
-                ))}
-              </div>
-              <p className="text-gray-800">{rev.comment}</p>
-            </div>
-
-            {(user._id === rev.userId._id || user.role === "admin") && (
-              <div className="flex gap-2 text-gray-500">
-                {user._id === rev.userId._id && (
-                  <FaEdit
-                    className="cursor-pointer hover:text-blue-600"
-                    onClick={() => handleEdit(rev)}
-                  />
-                )}
-                <FaTrash
-                  className="cursor-pointer hover:text-red-600"
-                  onClick={() => handleDelete(rev._id)}
-                />
-              </div>
-            )}
+        <div
+          key={rev._id}
+          className="mb-4 border-b pb-3 flex justify-between items-start"
+        >
+          <div>
+            <p className="font-semibold text-gray-800">
+              {rev.userId?.username || "Unknown User"}
+            </p>
+            <StarRating rating={rev.rating} readOnly />
+            <p className="text-sm text-gray-700 mt-1">{rev.comment}</p>
           </div>
+
+          {(user?._id === rev.userId?._id || user?.role === "admin") && (
+            <div className="flex items-center gap-3 text-gray-600 text-sm mt-1">
+              {user?._id === rev.userId?._id && (
+                <FaEdit
+                  title="Edit"
+                  className="cursor-pointer hover:text-blue-500"
+                  onClick={() => handleEdit(rev)}
+                />
+              )}
+              <FaTrash
+                title="Delete"
+                className="cursor-pointer hover:text-red-500"
+                onClick={() => handleDelete(rev._id)}
+              />
+            </div>
+          )}
         </div>
       ))}
 
+      {/* Review Form */}
       {!hasReviewed || editingReviewId ? (
         <form onSubmit={handleSubmit} className="mt-4">
-          <div className="flex gap-3 mb-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <label key={star} className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  name="rating"
-                  value={star}
-                  checked={rating === star}
-                  onChange={() => setRating(star)}
-                  className="accent-yellow-500"
-                />
-                <FaStar color={star <= rating ? "gold" : "gray"} />
-              </label>
-            ))}
-          </div>
+          <StarRating rating={rating} onRatingChange={setRating} />
           <textarea
             rows="3"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full border rounded p-2 mb-2"
-            placeholder="Write your review..."
+            className="w-full border rounded-md p-2 text-sm mt-3 focus:outline-none focus:ring-1 focus:ring-green-400"
+            placeholder="Write your review here..."
             required
           />
           <button
             type="submit"
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            className="mt-3 bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 transition"
           >
             {editingReviewId ? "Update Review" : "Submit Review"}
           </button>
         </form>
       ) : (
-        <p className="text-sm text-gray-500">You have already reviewed this gig.</p>
+        <p className="text-sm text-gray-500 mt-2">
+          ✅ You have already reviewed this gig.
+        </p>
       )}
     </div>
   );

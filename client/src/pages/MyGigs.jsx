@@ -69,7 +69,7 @@ export default function MyGigs() {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300 p-4 sm:p-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">💼 My Gigs</h2>
-        <Link to="/" className="text-blue-500 hover:underline text-sm">← Back to Home</Link>
+        <Link to="/freelancer-home" className="text-blue-500 hover:underline text-sm">← Back to Home</Link>
       </div>
 
       {loading ? (

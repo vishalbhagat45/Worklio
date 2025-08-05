@@ -1,17 +1,22 @@
-import React from 'react';
-import { FaStar } from 'react-icons/fa';
+// src/components/StarRating.jsx
+import React from "react";
+import { FaStar } from "react-icons/fa";
 
-export default function StarRating({ rating, setRating, readOnly = false }) {
+export default function StarRating({ rating, onRatingChange, readOnly = false }) {
   return (
     <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((num) => (
-        <FaStar
-          key={num}
-          className={`text-2xl transition ${
-            num <= rating ? 'text-yellow-400' : 'text-gray-300'
-          } ${!readOnly && 'cursor-pointer hover:scale-110'}`}
-          onClick={() => !readOnly && setRating(num)}
-        />
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          type="button"
+          key={star}
+          onClick={() => !readOnly && onRatingChange?.(star)}
+          className={`text-xl ${star <= rating ? "text-yellow-400" : "text-gray-300"} ${
+            readOnly ? "cursor-default" : "hover:text-yellow-500"
+          }`}
+          disabled={readOnly}
+        >
+          <FaStar />
+        </button>
       ))}
     </div>
   );
