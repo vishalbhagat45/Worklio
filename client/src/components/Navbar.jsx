@@ -6,21 +6,31 @@ import { FaSun, FaMoon, FaSmile } from "react-icons/fa";
 const Navbar = () => {
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    () => document.documentElement.classList.contains("dark")
+  );
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const role = user?.role;
 
+  // Logout handler
   const handleLogout = () => {
     logout();
     setDropdownOpen(false);
-    navigate("/");
+    navigate("/"); // Redirect to home
   };
 
+  // Toggle dropdown visibility
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
-  const role = user?.role;
 
-  // Close dropdown on outside click
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const isDark = !darkMode;
+    setDarkMode(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+  };
+
+  // Close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -31,48 +41,38 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Toggle body class for dark mode
-  useEffect(() => {
-    document.body.classList.toggle("dark", darkMode);
-  }, [darkMode]);
-
   return (
     <div className="bg-white dark:bg-gray-900 shadow-sm py-4 px-8 flex justify-between items-center relative text-sm dark:text-white transition duration-300">
       {/* Logo */}
-      <Link
-        to="/"
-        className="text-2xl font-bold text-blue-600 dark:text-blue-400"
-      >
+      <Link to="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
         Worklio
       </Link>
 
-      {/* Search */}
+      {/* Search Bar */}
       <input
         type="text"
         placeholder="Find Professionals & Agencies"
         className="w-[40%] mx-7 px-6 py-2 border rounded-md text-sm outline-none dark:bg-gray-800 dark:text-white"
       />
 
-      {/* Right Section */}
+      {/* Right Side */}
       <div className="flex items-center space-x-6">
         <Link to="/solution" className="hover:underline">
           Solutions
         </Link>
 
-        {/* Dark Mode */}
-        <button
-          onClick={() => document.documentElement.classList.toggle("dark")}
-        >
-          🌗 Toggle Dark
+        {/* Dark Mode Toggle */}
+        <button onClick={toggleDarkMode}>
+          {darkMode ? <FaSun /> : <FaMoon />}
         </button>
 
+        {/* Authenticated */}
         {user ? (
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={toggleDropdown}
               className="flex items-center gap-2 font-medium"
             >
-              {/* Avatar */}
               <img
                 src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${user.username}`}
                 alt="avatar"
@@ -81,7 +81,7 @@ const Navbar = () => {
               {user.username}
             </button>
 
-            {/* Dropdown */}
+            {/* Dropdown Menu */}
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded shadow-lg z-50">
                 <Link
@@ -93,16 +93,10 @@ const Navbar = () => {
 
                 {role === "client" && (
                   <>
-                    <Link
-                      to="/dashboard"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Client Dashboard
                     </Link>
-                    <Link
-                      to="/my-orders"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <Link to="/my-orders" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       My Orders
                     </Link>
                   </>
@@ -110,22 +104,13 @@ const Navbar = () => {
 
                 {role === "freelancer" && (
                   <>
-                    <Link
-                      to="/dashboard"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Freelancer Dashboard
                     </Link>
-                    <Link
-                      to="/orders"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Orders
                     </Link>
-                    <Link
-                      to="/my-gigs"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <Link to="/my-gigs" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       My Gigs
                     </Link>
                   </>
@@ -133,25 +118,16 @@ const Navbar = () => {
 
                 {role === "admin" && (
                   <>
-                    <Link
-                      to="/admin-dashboard"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <Link to="/admin-dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Admin Dashboard
                     </Link>
-                    <Link
-                      to="/admin/users"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <Link to="/admin/users" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                       Manage Users
                     </Link>
                   </>
                 )}
 
-                <Link
-                  to="/chat"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+                <Link to="/chat" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <span className="flex items-center gap-1">
                     <FaSmile className="text-yellow-500" /> Messages
                   </span>
@@ -177,20 +153,14 @@ const Navbar = () => {
           </>
         )}
 
-        {/* Action Button */}
+        {/* Role-Based Action Button */}
         {user && role === "client" && (
-          <Link
-            to="/post-job"
-            className="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700"
-          >
+          <Link to="/post-job" className="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700">
             Post a Job
           </Link>
         )}
         {user && role === "freelancer" && (
-          <Link
-            to="/my-gigs"
-            className="bg-purple-600 px-4 py-2 text-white rounded hover:bg-purple-700"
-          >
+          <Link to="/my-gigs" className="bg-purple-600 px-4 py-2 text-white rounded hover:bg-purple-700">
             Post a Gig
           </Link>
         )}

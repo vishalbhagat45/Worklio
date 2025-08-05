@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaGoogle, FaFacebookF, FaTwitter } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
+// src/pages/Login.jsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaGoogle, FaFacebookF, FaTwitter } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleLogin = (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem('allUsers')) || [];
+    const users = JSON.parse(localStorage.getItem("allUsers")) || [];
 
     const matchedUser = users.find(
       (user) =>
@@ -22,13 +23,13 @@ export default function Login() {
 
     if (matchedUser) {
       login(matchedUser);
-      if (matchedUser.role === 'freelancer') {
-        navigate('/freelancer');
+      if (matchedUser.role === "freelancer") {
+        navigate("/freelancer");
       } else {
-        navigate('/dashboard');
+        navigate("/");
       }
     } else {
-      alert('Invalid credentials');
+      alert("Invalid credentials");
     }
   };
 
@@ -38,8 +39,12 @@ export default function Login() {
       style={{ backgroundImage: "url('/assets/login.jpg')" }}
     >
       <div className="bg-white rounded-xl shadow-2xl p-10 w-full max-w-md bg-opacity-90">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Welcome Back!</h2>
-        <p className="text-center text-gray-600 mb-6">Login to your Worklio account</p>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
+          Welcome Back!
+        </h2>
+        <p className="text-center text-gray-600 mb-6">
+          Login to your Worklio account
+        </p>
 
         <form onSubmit={handleLogin}>
           <input
@@ -82,9 +87,9 @@ export default function Login() {
         </div>
 
         <p className="text-center text-gray-600">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <button
-            onClick={() => navigate('/register')}
+            onClick={() => navigate("/register")}
             className="text-blue-500 hover:underline"
           >
             Sign up

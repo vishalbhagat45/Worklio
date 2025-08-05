@@ -13,6 +13,8 @@ import paymentRoutes from "./routes/payment.js";
 import webhookRoutes from "./routes/webhooks.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import categoryRoutes from './routes/categories.js';
+import gigRoutes from './routes/gigs.js';
 
 dotenv.config();
 
@@ -102,6 +104,9 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/webhook", webhookRoutes); // Stripe webhook route
 app.use("/api/messages", messageRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use('/api/gigs', gigRoutes);
+
 
 // ✅ MongoDB Connection + Server Start
 mongoose

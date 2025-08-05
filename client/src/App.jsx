@@ -54,7 +54,7 @@ function App() {
         <Route path="/jobs/:jobId" element={<JobDetail />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/my-orders" element={<DashboardOrders />} />
-        <Route path="/category/:category" element={<CategoryPage />} />
+        <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/inbox" element={<ChatPage />} />
         
         {/* ✅ Review Form Route */}
