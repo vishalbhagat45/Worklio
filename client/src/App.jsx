@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { Toaster } from "react-hot-toast";
@@ -32,107 +32,108 @@ import MyApplications from "./pages/MyApplications";
 import GigApplicants from "./pages/GigApplicants";
 import ChatPage from "./pages/ChatPage";
 
-
 // Components
 import PrivateRoute from "./components/PrivateRoute";
 import StarRating from "./components/StarRating";
 
 // ✅ App Wrapper to use hooks like useLocation inside BrowserRouter
-function AppWrapper() {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  );
-}
 
 function App() {
   const { user } = useAuth();
-  const location = useLocation();
+  // const location = useLocation();
 
   // Navbar should be hidden on FreelancerHome
-  const hideNavbarRoutes = ["/freelancer-home"];
-  const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
+  // const hideNavbarRoutes = ["/freelancer-home"];
+  // const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
 
   return (
     <>
-      <ToastContainer position="top-center" autoClose={3000} />
-      <Toaster position="top-center" reverseOrder={false} />
+      <BrowserRouter>
+        <ToastContainer position="top-center" autoClose={3000} />
+        <Toaster position="top-center" reverseOrder={false} />
 
-      {user && shouldShowNavbar && <Navbar />}
+        {user && <Navbar />}
 
-      <Routes>
-        {/* General Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/post-job" element={<PostJob />} />
-        <Route path="/dashboard" element={<DashboardJobs />} />
-        <Route path="/all-jobs" element={<AllJobs />} />
-        <Route path="/jobs/:jobId" element={<JobDetail />} />
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/my-orders" element={<DashboardOrders />} />
-        <Route path="/category/:slug" element={<CategoryPage />} />
-        <Route path="/inbox" element={<ChatPage />} />
+        <Routes>
+          {/* General Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/post-job" element={<PostJob />} />
+          <Route path="/dashboard" element={<DashboardJobs />} />
+          <Route path="/all-jobs" element={<AllJobs />} />
+          <Route
+            path="/jobs/:jobId"
+            element={
+              <JobDetail
+                key={window.location.pathname + window.location.hash}
+              />
+            }
+          />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/my-orders" element={<DashboardOrders />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/inbox" element={<ChatPage />} />
 
-       {/* Role-Based Homepages */}
-        <Route path="/client-home" element={<ClientHome />} />
-        <Route path="/freelancer-home" element={<FreelancerHome />} />
+          {/* Role-Based Homepages */}
+          <Route path="/client-home" element={<ClientHome />} />
+          <Route path="/freelancer-home" element={<FreelancerHome />} />
 
-        {/* Admin */}
-        <Route path="/dashboard/admin" element={<DashboardAdmin />} />
-        <Route path="/admin/users" element={<ManageUsers />} />
-        <Route path="/admin/gigs" element={<ManageGigs />} />
+          {/* Admin */}
+          <Route path="/dashboard/admin" element={<DashboardAdmin />} />
+          <Route path="/admin/users" element={<ManageUsers />} />
+          <Route path="/admin/gigs" element={<ManageGigs />} />
 
-        {/* Client */}
-        <Route path="/dashboard/client" element={<DashboardClient />} />
-        <Route path="/my-applications" element={<MyApplications />} />
-        <Route path="/gig/:gigId/applicants" element={<GigApplicants />} />
-        <Route
-          path="/client/purchased-gigs"
-          element={
-            <PrivateRoute allowedRoles={["client"]}>
-              <PurchasedGigs />
-            </PrivateRoute>
-          }
-        />
+          {/* Client */}
+          <Route path="/dashboard/client" element={<DashboardClient />} />
+          <Route path="/my-applications" element={<MyApplications />} />
+          <Route path="/gig/:gigId/applicants" element={<GigApplicants />} />
+          <Route
+            path="/client/purchased-gigs"
+            element={
+              <PrivateRoute allowedRoles={["client"]}>
+                <PurchasedGigs />
+              </PrivateRoute>
+            }
+          />
 
-        {/* Freelancer */}
-        <Route
-          path="/freelancer-dashboard"
-          element={
-            <PrivateRoute allowedRoles={["freelancer"]}>
-              <FreelancerDashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/mygigs"
-          element={
-            <PrivateRoute allowedRoles={["freelancer"]}>
-              <MyGigs />
-            </PrivateRoute>
-          }
-        />
+          {/* Freelancer */}
+          <Route
+            path="/freelancer-dashboard"
+            element={
+              <PrivateRoute allowedRoles={["freelancer"]}>
+                <FreelancerDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/mygigs"
+            element={
+              <PrivateRoute allowedRoles={["freelancer"]}>
+                <MyGigs />
+              </PrivateRoute>
+            }
+          />
 
-        {/* Chat */}
-        <Route
-          path="/chat"
-          element={
-            <PrivateRoute>
-              <Message />
-            </PrivateRoute>
-          }
-        />
+          {/* Chat */}
+          <Route
+            path="/chat"
+            element={
+              <PrivateRoute>
+                <Message />
+              </PrivateRoute>
+            }
+          />
 
-        <Route path="/star-rating" element={<StarRating />} />
+          <Route path="/star-rating" element={<StarRating />} />
 
-        {/* Payment */}
-        <Route path="/payment/success" element={<PaymentSuccess />} />
-        <Route path="/payment/cancel" element={<PaymentCancel />} />
-      </Routes>
+          {/* Payment */}
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/cancel" element={<PaymentCancel />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
 
-export default AppWrapper;
+export default App;

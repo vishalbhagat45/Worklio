@@ -20,7 +20,7 @@ export default function PostJob() {
   useEffect(() => {
     if (!user) {
       navigate("/login");
-    } else if (user.role !== "client") {
+    } else if (user.role !== "freelancer") {
       navigate("/unauthorized");
     }
   }, [user, navigate]);

@@ -1,5 +1,5 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState, useLayoutEffect } from "react";
 import axios from "axios";
 import ReviewSection from "../components/ReviewSection";
 import { toast } from "react-toastify";
@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 export default function JobDetail() {
   const { jobId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [proposal, setProposal] = useState("");
@@ -33,6 +34,18 @@ export default function JobDetail() {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [jobId]);
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      const element = document.getElementById(id);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 10); // slight delay ensures it's rendered
+      }
+    }
+  }, [location]);
 
   // Submit a proposal
   const handleApply = async () => {
@@ -104,7 +117,7 @@ export default function JobDetail() {
       </div>
 
       {/* ✅ Review Section */}
-      <div className="mt-10">
+      <div className="mt-10" id="reviews">
         <ReviewSection gigId={job._id} />
       </div>
     </div>

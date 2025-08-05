@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { FaSun, FaMoon, FaSmile } from "react-icons/fa";
 
 const Navbar = () => {
+  const [userRole, setUserRole] = useState(null);
   const { user, logout } = useAuth();
   const role = user?.role;
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -18,6 +19,23 @@ const Navbar = () => {
     logout();
     setDropdownOpen(false);
     navigate("/");
+  };
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUserRole(storedUser.role); // client or freelancer
+    }
+  }, []);
+
+  const handleHomeRedirect = () => {
+    if (userRole === "client") {
+      navigate("/client-home");
+    } else if (userRole === "freelancer") {
+      navigate("/freelancer-home");
+    } else {
+      navigate("/"); // fallback to landing page
+    }
   };
 
   // Toggle dropdown visibility
@@ -44,12 +62,12 @@ const Navbar = () => {
   return (
     <div className="bg-white dark:bg-gray-900 shadow-sm py-4 px-8 flex justify-between items-center relative text-sm dark:text-white transition duration-300">
       {/* Logo */}
-      <Link
-        to="/"
-        className="text-2xl font-bold text-blue-600 dark:text-blue-400"
+       <span
+        className="text-2xl font-bold text-blue-600 dark:text-blue-400 cursor-pointer"
+        onClick={handleHomeRedirect}
       >
         Worklio
-      </Link>
+      </span>
 
       {/* Search Bar */}
       <input
@@ -60,9 +78,9 @@ const Navbar = () => {
 
       {/* Right Side */}
       <div className="flex items-center space-x-6">
-        <Link to="/solution" className="hover:underline">
+        {/* <Link to="/solution" className="hover:underline">
           Solutions
-        </Link>
+        </Link> */}
 
         {/* Dark Mode Toggle */}
         <button onClick={toggleDarkMode}>
@@ -159,9 +177,9 @@ const Navbar = () => {
         )}
 
         {/* Role-Based CTA Buttons */}
-        {user && role === "client" && (
+        {/* {user && role === "client" && (
           <Link
-            to="/post-job"
+            to="/Mygigs"
             className="bg-green-600 px-4 py-2 text-white rounded hover:bg-green-700"
           >
             Post a Job
@@ -169,12 +187,12 @@ const Navbar = () => {
         )}
         {user && role === "freelancer" && (
           <Link
-            to="/my-gigs"
+            to="/mygigs"
             className="bg-purple-600 px-4 py-2 text-white rounded hover:bg-purple-700"
           >
             Post a Gig
           </Link>
-        )}
+        )} */}
       </div>
     </div>
   );

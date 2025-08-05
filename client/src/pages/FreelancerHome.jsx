@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchJobs } from "../api/jobApi";
+import { useAuth } from "../context/AuthContext";
 
 const FreelancerHome = () => {
   const navigate = useNavigate();
+  const [jobs, setJobs] = useState([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const getJobs = async () => {
+      try {
+        const res = await fetchJobs();
+        setJobs(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch jobs:", err);
+      }
+    };
+
+    getJobs();
+  }, []);
+
+  const firstJob = jobs.length > 0 ? jobs[0] : null;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center py-10 px-5">
@@ -34,9 +53,19 @@ const FreelancerHome = () => {
           bgColor="bg-pink-500"
         />
         <Card
+          title="Post a Job"
+          description="Add a new job posting."
+          onClick={() => navigate("/post-job")}
+          bgColor="bg-orange-500"
+        />
+        <Card
           title="Ratings & Reviews"
           description="See what clients are saying about you."
-          onClick={() => navigate("/jobs/:jobId")} // or modal if inline
+          onClick={() => {
+            if (firstJob?._id) {
+              navigate(`/jobs/${jobs[0]._id}#reviews`, { replace: true });
+            }
+          }}
           bgColor="bg-yellow-500"
         />
       </div>
@@ -46,7 +75,7 @@ const FreelancerHome = () => {
 
 const Card = ({ title, description, onClick, bgColor }) => (
   <div
-    className={`rounded-lg shadow-lg p-6 cursor-pointer hover:scale-105 transition transform ${bgColor}`}
+    className={`rounded-lg shadow-lg p-6 cursor-pointer hover:scale-105 transition-transform duration-300 ${bgColor}`}
     onClick={onClick}
   >
     <h2 className="text-xl font-semibold mb-2">{title}</h2>
