@@ -109,11 +109,7 @@ app.use('/api/gigs', gigRoutes);
 
 
 // ✅ MongoDB Connection + Server Start
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected");
     const PORT = process.env.PORT || 5000;
