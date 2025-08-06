@@ -23,8 +23,6 @@ import MyGigs from "./pages/MyGigs";
 import PurchasedGigs from "./pages/client/PurchasedGigs";
 import CategoryPage from "./pages/CategoryPage";
 import DashboardClient from "./pages/client/DashboardClient";
-import DashboardAdmin from "./pages/Admin/DashboardAdmin";
-import ManageGigs from "./pages/admin/ManageGigs";
 import PaymentSuccess from "./pages/Payment/PaymentSuccess";
 import PaymentCancel from "./pages/Payment/PaymentCancel";
 import MyApplications from "./pages/MyApplications";
@@ -71,10 +69,6 @@ function App() {
           {/* Role-Based Homepages */}
           <Route path="/client-home" element={<ClientHome />} />
           <Route path="/freelancer-home" element={<FreelancerHome />} />
-
-          {/* Admin */}
-          <Route path="/dashboard/admin" element={<DashboardAdmin />} />
-          <Route path="/admin/gigs" element={<ManageGigs />} />
 
           {/* Client */}
           <Route path="/dashboard/client" element={<DashboardClient />} />
