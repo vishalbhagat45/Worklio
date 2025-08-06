@@ -13,7 +13,11 @@ export default function ClientHome() {
     const fetchCategories = async () => {
       try {
         const res = await getCategories();
-        setCategories(res.data);
+        if (Array.isArray(res.data)) {
+          setCategories(res.data);
+        } else {
+          console.error("Invalid categories response format");
+        }
       } catch (err) {
         console.error("Error fetching categories:", err);
       }
@@ -25,7 +29,8 @@ export default function ClientHome() {
     { label: "Dashboard", path: "/dashboard/client" },
     { label: "Purchased Gigs", path: "/client/purchased-gigs" },
     { label: "All Jobs", path: "/all-jobs" },
-    { label: "Gig Applicants", path: "/gig/:gigId/applicants"},
+    // Replace :gigId with an actual ID or keep placeholder if dynamic
+    { label: "Gig Applicants", path: "/gig/:gigId/applicants" },
     { label: "Job Details", path: "/jobs/:jobId" },
     { label: "Messages", path: "/chat" },
     { label: "Orders", path: "/orders" },
@@ -38,9 +43,9 @@ export default function ClientHome() {
       <aside className="w-64 bg-white dark:bg-gray-800 shadow-lg px-6 py-8 hidden md:block">
         <h2 className="text-xl font-bold mb-6">👤 Client Dashboard</h2>
         <nav className="flex flex-col gap-4">
-          {navigationLinks.map((link) => (
+          {navigationLinks.map((link, index) => (
             <Link
-              key={link.path}
+              key={`${link.path}-${index}`}
               to={link.path}
               className="hover:text-blue-600 transition text-sm font-medium"
             >
@@ -62,7 +67,7 @@ export default function ClientHome() {
           </p>
           <div className="flex justify-center mt-6 flex-wrap gap-4">
             <Link
-              to="/category-page"
+              to="/category/:slug"
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
             >
               Browse Categories
@@ -86,7 +91,9 @@ export default function ClientHome() {
                 to={`/category/${cat.slug}`}
                 className="p-6 border border-gray-300 dark:border-gray-700 rounded-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white dark:bg-gray-800"
               >
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-white">{cat.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+                  {cat.name}
+                </h3>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                   Browse top gigs in {cat.name}
                 </p>
@@ -119,7 +126,7 @@ export default function ClientHome() {
           <div className="grid md:grid-cols-3 gap-8">
             {["Basic", "Standard", "Premium"].map((plan, i) => (
               <div
-                key={i}
+                key={plan}
                 className="p-6 border rounded-xl hover:shadow-lg dark:border-gray-700 dark:bg-gray-800"
               >
                 <h3 className="text-xl font-bold">{plan}</h3>

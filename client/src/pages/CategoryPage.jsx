@@ -14,68 +14,80 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState('newest');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchCategory = async () => {
-      try {
-        const res = await axios.get(`/api/categories/${slug}`);
-        setCategory(res.data);
-        setError('');
-      } catch (err) {
-        console.error('Error fetching category:', err);
-        setError('Category not found or failed to load.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (slug) fetchCategory();
-  }, [slug]);
-
-  useEffect(() => {
-    const fetchGigs = async () => {
-      try {
-        const res = await axios.get(`/api/gigs?category=${slug}`);
-        setGigs(res.data || []);
-      } catch (err) {
-        console.error('Error fetching gigs:', err);
-      }
-    };
-
-    if (slug) fetchGigs();
-  }, [slug]);
-
-  useEffect(() => {
-    let results = [...gigs];
-
-    if (priceRange.min || priceRange.max) {
-      results = results.filter(gig => {
-        const price = gig.price || 0;
-        return (
-          (!priceRange.min || price >= parseInt(priceRange.min)) &&
-          (!priceRange.max || price <= parseInt(priceRange.max))
-        );
-      });
+ useEffect(() => {
+  const fetchCategory = async () => {
+    try {
+      const res = await axios.get(`/api/categories/${slug}`);
+      setCategory(res.data);
+      setError('');
+    } catch (err) {
+      console.error('Error fetching category:', err);
+      setError('Category not found or failed to load.');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (search.trim()) {
-      const term = search.toLowerCase();
-      results = results.filter(gig =>
-        gig.title.toLowerCase().includes(term) ||
-        gig.description?.toLowerCase().includes(term)
+  if (slug) fetchCategory();
+}, [slug]);
+
+useEffect(() => {
+  const fetchGigs = async () => {
+    try {
+      const res = await axios.get(`/api/gigs?category=${slug}`);
+      const allGigs = res.data || [];
+
+      // ✅ Filter: only gigs posted by freelancers
+      const gigsByFreelancers = allGigs.filter(
+        gig => gig.postedBy?.role === 'freelancer'
       );
+
+      setGigs(gigsByFreelancers);
+    } catch (err) {
+      console.error('Error fetching gigs:', err);
     }
+  };
 
-    if (sortBy === 'price') {
-      results.sort((a, b) => a.price - b.price);
-    } else {
-      results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
+  if (slug) fetchGigs();
+}, [slug]);
 
-    setFilteredGigs(results);
-  }, [search, priceRange, sortBy, gigs]);
+useEffect(() => {
+  let results = [...gigs];
 
-  if (loading) return <div className="text-center py-20 text-lg">Loading category...</div>;
-  if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
+  // ✅ Filter by price range
+  if (priceRange.min || priceRange.max) {
+    results = results.filter(gig => {
+      const price = gig.price || 0;
+      return (
+        (!priceRange.min || price >= parseInt(priceRange.min)) &&
+        (!priceRange.max || price <= parseInt(priceRange.max))
+      );
+    });
+  }
+
+  // ✅ Filter by search term
+  if (search.trim()) {
+    const term = search.toLowerCase();
+    results = results.filter(gig =>
+      gig.title.toLowerCase().includes(term) ||
+      gig.description?.toLowerCase().includes(term)
+    );
+  }
+
+  // ✅ Sort by price or newest
+  if (sortBy === 'price') {
+    results.sort((a, b) => a.price - b.price);
+  } else {
+    results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  setFilteredGigs(results);
+}, [search, priceRange, sortBy, gigs]);
+
+// ✅ Show loading or error if needed
+if (loading) return <div className="text-center py-20 text-lg">Loading category...</div>;
+if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
+
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-800 px-6 pt-6 pb-12">

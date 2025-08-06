@@ -6,31 +6,30 @@ const CATEGORY_URL = "http://localhost:5000/api/categories";
 const ORDER_URL = "http://localhost:5000/api/orders";
 const REVIEW_URL = "http://localhost:5000/api/reviews";
 
-// Get all jobs
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
+// Jobs
 export const fetchJobs = () => axios.get(API_URL);
-
-// Get single job by ID
 export const fetchJobById = (id) => axios.get(`${API_URL}/${id}`);
-
-// Create a job
 export const createJob = (jobData) => axios.post(API_URL, jobData);
-
-// Update a job
 export const updateJob = (id, jobData) => axios.put(`${API_URL}/${id}`, jobData);
-
-// ❗Renamed as requested: Delete a job by ID
 export const DeleteJobById = (id) => axios.delete(`${API_URL}/${id}`);
-
-// Apply to a job
 export const applyToJob = (id, applicantData) =>
   axios.post(`${API_URL}/${id}/apply`, applicantData);
 
-// Get job categories
+// Categories
 export const getCategories = () => axios.get(CATEGORY_URL);
 
-// ✅ NEW: Fetch orders for a user (or all if admin)
-export const fetchOrders = () => axios.get(ORDER_URL);
+// Orders
+export const fetchOrders = () => axios.get(ORDER_URL, getAuthHeaders());
 
-// ✅ NEW: Fetch reviews by a user
+// Reviews
 export const fetchReviewsByUser = (userId) =>
-  axios.get(`${REVIEW_URL}/user/${userId}`);
+  axios.get(`${REVIEW_URL}/user/${userId}`, getAuthHeaders());
