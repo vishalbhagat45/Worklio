@@ -13,8 +13,8 @@ import paymentRoutes from "./routes/payment.js";
 import webhookRoutes from "./routes/webhooks.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
-import categoryRoutes from './routes/categories.js';
-import gigRoutes from './routes/gigs.js';
+import categoryRoutes from "./routes/categories.js";
+import gigRoutes from "./routes/gigs.js";
 
 dotenv.config();
 
@@ -24,11 +24,12 @@ const server = http.createServer(app);
 // ✅ Socket.io Setup
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: [
+      "https://worklio-2pjg-git-main-vishals-projects-dd38c9a3.vercel.app",
+    ],
     methods: ["GET", "POST"],
   },
 });
-
 
 app.set("io", io); // Optional: make io accessible in routes/controllers if needed
 
@@ -105,11 +106,11 @@ app.use("/api/webhook", webhookRoutes); // Stripe webhook route
 app.use("/api/messages", messageRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use('/api/gigs', gigRoutes);
-
+app.use("/api/gigs", gigRoutes);
 
 // ✅ MongoDB Connection + Server Start
-mongoose.connect(process.env.MONGO_URI)
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected");
     const PORT = process.env.PORT || 5000;
