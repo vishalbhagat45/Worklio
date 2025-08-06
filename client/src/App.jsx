@@ -24,7 +24,6 @@ import PurchasedGigs from "./pages/client/PurchasedGigs";
 import CategoryPage from "./pages/CategoryPage";
 import DashboardClient from "./pages/client/DashboardClient";
 import DashboardAdmin from "./pages/Admin/DashboardAdmin";
-import ManageUsers from "./pages/admin/ManageUsers";
 import ManageGigs from "./pages/admin/ManageGigs";
 import PaymentSuccess from "./pages/Payment/PaymentSuccess";
 import PaymentCancel from "./pages/Payment/PaymentCancel";
@@ -75,7 +74,6 @@ function App() {
 
           {/* Admin */}
           <Route path="/dashboard/admin" element={<DashboardAdmin />} />
-          <Route path="/admin/users" element={<ManageUsers />} />
           <Route path="/admin/gigs" element={<ManageGigs />} />
 
           {/* Client */}
