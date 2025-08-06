@@ -44,7 +44,7 @@ export default function Login() {
       } else if (matchedUser.role === "freelancer") {
         navigate("/freelancer-home");
       } else {
-        setError("Invalid role. Please contact support.");
+        navigate("/");
       }
     } else {
       setError("Invalid credentials or role mismatch.");

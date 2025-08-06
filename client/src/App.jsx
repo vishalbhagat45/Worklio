@@ -36,16 +36,10 @@ import ChatPage from "./pages/ChatPage";
 import PrivateRoute from "./components/PrivateRoute";
 import StarRating from "./components/StarRating";
 
-// ✅ App Wrapper to use hooks like useLocation inside BrowserRouter
 
 function App() {
   const { user } = useAuth();
-  // const location = useLocation();
-
-  // Navbar should be hidden on FreelancerHome
-  // const hideNavbarRoutes = ["/freelancer-home"];
-  // const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
-
+  
   return (
     <>
       <BrowserRouter>
