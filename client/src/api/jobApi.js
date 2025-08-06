@@ -1,10 +1,13 @@
 // src/api/jobApi.js
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/jobs";
-const CATEGORY_URL = "http://localhost:5000/api/categories";
-const ORDER_URL = "http://localhost:5000/api/orders";
-const REVIEW_URL = "http://localhost:5000/api/reviews";
+// ✅ Use environment variable
+const BASE_API = import.meta.env.VITE_API_URL;
+
+const API_URL = `${BASE_API}/jobs`;
+const CATEGORY_URL = `${BASE_API}/categories`;
+const ORDER_URL = `${BASE_API}/orders`;
+const REVIEW_URL = `${BASE_API}/reviews`;
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
@@ -15,7 +18,7 @@ const getAuthHeaders = () => {
   };
 };
 
-// Jobs
+// ✅ Jobs
 export const fetchJobs = () => axios.get(API_URL);
 export const fetchJobById = (id) => axios.get(`${API_URL}/${id}`);
 export const createJob = (jobData) => axios.post(API_URL, jobData);
@@ -24,12 +27,12 @@ export const DeleteJobById = (id) => axios.delete(`${API_URL}/${id}`);
 export const applyToJob = (id, applicantData) =>
   axios.post(`${API_URL}/${id}/apply`, applicantData);
 
-// Categories
+// ✅ Categories
 export const getCategories = () => axios.get(CATEGORY_URL);
 
-// Orders
+// ✅ Orders
 export const fetchOrders = () => axios.get(ORDER_URL, getAuthHeaders());
 
-// Reviews
+// ✅ Reviews
 export const fetchReviewsByUser = (userId) =>
   axios.get(`${REVIEW_URL}/user/${userId}`, getAuthHeaders());
