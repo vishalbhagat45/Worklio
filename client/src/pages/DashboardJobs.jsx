@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchJobs, deleteJob } from "../api/jobApi";
+import { fetchJobs, DeleteJobById } from "../api/jobApi";
 import { useNavigate, Link } from "react-router-dom";
 import moment from "moment";
 
@@ -37,7 +37,7 @@ export default function DashboardJobs() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this gig?")) return;
-    await deleteJob(id);
+    await DeleteJobById(id);
     loadJobs();
   };
 

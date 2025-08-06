@@ -8,22 +8,32 @@ export default function PurchasedGigs() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
 
-  useEffect(() => {
-    if (!user) return;
+ useEffect(() => {
+  if (!user) return;
 
-    const fetchOrders = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/orders/user/${user._id}`
-        );
-        setOrders(res.data);
-      } catch (err) {
-        console.error('Failed to fetch orders:', err);
-      }
-    };
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/orders/user/${user._id}`
+      );
 
-    fetchOrders();
-  }, [user]);
+      const ordersArray = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data.orders)
+        ? res.data.orders
+        : [];
+
+      setOrders(ordersArray);
+    } catch (err) {
+      console.error('Failed to fetch orders:', err);
+      setOrders([]);
+    }
+  };
+
+  fetchOrders(); // ✅ Call the async function
+
+}, [user]);
+
 
   const handleCancel = async (orderId) => {
     if (!window.confirm('Are you sure you want to cancel this order?')) return;
